@@ -15,7 +15,9 @@ jobs:
       matrix:
         template:
           - supabase-next
-          - convex-clerk
+          - react-convex-clerk
+          - t3
+          - firebase-react
     defaults:
       run:
         working-directory: templates/${{ matrix.template }}
@@ -37,4 +39,17 @@ jobs:
       - name: Build
         # Intentionally runs without real secrets: env reads are build-safe
         # (lazy clients + placeholder fallbacks), so the build must be green.
+        # The values below are dummy placeholders, not real credentials — they
+        # only satisfy tools that read env at build time (e.g. Prisma needs
+        # DATABASE_URL, Vite inlines VITE_* vars).
+        env:
+          DATABASE_URL: "file:./dev.db"
+          VITE_CONVEX_URL: "https://example.convex.cloud"
+          VITE_CLERK_PUBLISHABLE_KEY: "pk_test_placeholder"
+          VITE_FIREBASE_API_KEY: "placeholder"
+          VITE_FIREBASE_AUTH_DOMAIN: "placeholder.firebaseapp.com"
+          VITE_FIREBASE_PROJECT_ID: "placeholder"
+          VITE_FIREBASE_STORAGE_BUCKET: "placeholder.appspot.com"
+          VITE_FIREBASE_MESSAGING_SENDER_ID: "0"
+          VITE_FIREBASE_APP_ID: "1:0:web:placeholder"
         run: npm run build

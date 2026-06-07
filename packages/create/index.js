@@ -25,6 +25,7 @@ const SKIP = new Set([
   ".git",
   "out",
   "build",
+  "dist",
   ".vercel",
   ".convex",
   "tsconfig.tsbuildinfo",
@@ -38,9 +39,19 @@ const STACKS = [
     blurb: "Postgres + RLS auth, server actions, BYOK LLM. All open source.",
   },
   {
-    id: "convex-clerk",
-    label: "Convex + Clerk",
+    id: "react-convex-clerk",
+    label: "Convex + Clerk (Vite React SPA)",
     blurb: "Reactive DB + hosted auth, multi-tenant by identity, BYOK LLM.",
+  },
+  {
+    id: "t3",
+    label: "T3 (Next.js + tRPC + Prisma + Auth.js)",
+    blurb: "End-to-end typesafe tRPC, Prisma + SQLite, GitHub OAuth, BYOK LLM.",
+  },
+  {
+    id: "firebase-react",
+    label: "Firebase (Vite React SPA)",
+    blurb: "Firebase Auth + Firestore, multi-tenant, browser-encrypted BYOK LLM.",
   },
 ];
 
@@ -175,8 +186,11 @@ async function main() {
   console.log(`    cd ${rel}`);
   console.log("    cp .env.example .env.local   # fill in your values");
   if (!install) console.log("    npm install");
-  if (stack.id === "convex-clerk") {
-    console.log("    npx convex dev               # provisions Convex + writes NEXT_PUBLIC_CONVEX_URL");
+  if (stack.id === "react-convex-clerk") {
+    console.log("    npx convex dev               # provisions Convex + writes VITE_CONVEX_URL");
+  }
+  if (stack.id === "t3") {
+    console.log("    npx prisma migrate dev       # creates the local SQLite database");
   }
   console.log("    npm run dev\n");
   console.log("  See the README in your new project for full setup instructions.\n");

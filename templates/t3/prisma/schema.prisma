@@ -1,0 +1,87 @@
+// Prisma schema for the T3 starter.
+//
+// Uses SQLite for zero-config local dev (DATABASE_URL="file:./dev.db"). To run
+// on PostgreSQL, change `provider` to "postgresql" and point DATABASE_URL at
+// your database — the models are written to be portable across both.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- NextAuth (Auth.js) models ---------------------------------------------
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  projects      Project[]
+  providerKey   ProviderKey?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- Application models ------------------------------------------------------
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// BYOK provider key, one per user. `encryptedKey` is AES-256-GCM ciphertext
+// (see src/lib/crypto.ts); the plaintext is never stored.
+model ProviderKey {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  provider     String   @default("openai-compatible")
+  encryptedKey String
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
