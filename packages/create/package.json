@@ -1,0 +1,27 @@
+{
+  "name": "create-saas-stack",
+  "version": "0.1.0",
+  "description": "Scaffold a production-style SaaS starter (Supabase + Next, or Convex + Clerk) into a new directory.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-saas-stack": "index.js"
+  },
+  "files": [
+    "index.js",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "saas",
+    "starter",
+    "nextjs",
+    "supabase",
+    "convex",
+    "clerk",
+    "scaffold",
+    "create"
+  ]
+}

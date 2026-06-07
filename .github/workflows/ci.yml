@@ -7,8 +7,18 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  templates:
+    name: ${{ matrix.template }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template:
+          - supabase-next
+          - convex-clerk
+    defaults:
+      run:
+        working-directory: templates/${{ matrix.template }}
     steps:
       - uses: actions/checkout@v4
 
@@ -16,6 +26,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: templates/${{ matrix.template }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
