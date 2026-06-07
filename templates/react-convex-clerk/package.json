@@ -1,0 +1,36 @@
+{
+  "name": "react-convex-clerk-saas-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A production-style Vite + React (SPA) + Convex + Clerk SaaS starter — auth, multi-tenant data, and BYOK LLM integration.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:backend": "convex dev",
+    "predev": "node scripts/gen-convex.cjs",
+    "prebuild": "node scripts/gen-convex.cjs",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "pretypecheck": "node scripts/gen-convex.cjs",
+    "typecheck": "tsc --noEmit",
+    "codegen": "convex codegen"
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.35.0",
+    "convex": "^1.31.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
+  }
+}

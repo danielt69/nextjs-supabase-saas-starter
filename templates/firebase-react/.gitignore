@@ -1,0 +1,21 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment — never commit real secrets
+.env
+.env.*
+!.env.example
+
+# Firebase
+.firebase
+firebase-debug.log
+firestore-debug.log
+
+# Editor / OS
+.DS_Store
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea

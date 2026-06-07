@@ -7,19 +7,28 @@
   "scripts": {
     "create": "node packages/create/index.js",
     "build:supabase-next": "npm --prefix templates/supabase-next run build",
-    "build:convex-clerk": "npm --prefix templates/convex-clerk run build",
+    "build:react-convex-clerk": "npm --prefix templates/react-convex-clerk run build",
+    "build:t3": "npm --prefix templates/t3 run build",
+    "build:firebase-react": "npm --prefix templates/firebase-react run build",
     "typecheck:supabase-next": "npm --prefix templates/supabase-next run typecheck",
-    "typecheck:convex-clerk": "npm --prefix templates/convex-clerk run typecheck",
-    "build": "npm run build:supabase-next && npm run build:convex-clerk",
-    "typecheck": "npm run typecheck:supabase-next && npm run typecheck:convex-clerk"
+    "typecheck:react-convex-clerk": "npm --prefix templates/react-convex-clerk run typecheck",
+    "typecheck:t3": "npm --prefix templates/t3 run typecheck",
+    "typecheck:firebase-react": "npm --prefix templates/firebase-react run typecheck",
+    "build": "npm run build:supabase-next && npm run build:react-convex-clerk && npm run build:t3 && npm run build:firebase-react",
+    "typecheck": "npm run typecheck:supabase-next && npm run typecheck:react-convex-clerk && npm run typecheck:t3 && npm run typecheck:firebase-react"
   },
   "keywords": [
     "saas",
     "starter",
     "monorepo",
     "nextjs",
+    "vite",
+    "react",
     "supabase",
     "convex",
-    "clerk"
+    "clerk",
+    "firebase",
+    "trpc",
+    "prisma"
   ]
 }
