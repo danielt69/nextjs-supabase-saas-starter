@@ -1,29 +1,25 @@
 {
-  "name": "nextjs-supabase-saas-starter",
+  "name": "saas-starters",
   "version": "0.1.0",
   "private": true,
-  "description": "A production-style Next.js + Supabase SaaS starter — auth, multi-tenant RLS, and BYOK LLM integration.",
+  "description": "A monorepo of independently-runnable SaaS starter templates plus a scaffolding CLI.",
+  "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "create": "node packages/create/index.js",
+    "build:supabase-next": "npm --prefix templates/supabase-next run build",
+    "build:convex-clerk": "npm --prefix templates/convex-clerk run build",
+    "typecheck:supabase-next": "npm --prefix templates/supabase-next run typecheck",
+    "typecheck:convex-clerk": "npm --prefix templates/convex-clerk run typecheck",
+    "build": "npm run build:supabase-next && npm run build:convex-clerk",
+    "typecheck": "npm run typecheck:supabase-next && npm run typecheck:convex-clerk"
   },
-  "dependencies": {
-    "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.107.0",
-    "next": "^16.2.7",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.2",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.10",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2"
-  }
+  "keywords": [
+    "saas",
+    "starter",
+    "monorepo",
+    "nextjs",
+    "supabase",
+    "convex",
+    "clerk"
+  ]
 }

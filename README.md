@@ -1,126 +1,96 @@
-# Next.js + Supabase SaaS Starter
+# SaaS Starters
 
-A clean, production-style SaaS starter built on the **Next.js App Router** and **Supabase**. It demonstrates the patterns most SaaS apps actually need: cookie-based SSR auth, multi-tenant data protected by Row Level Security, and a **bring-your-own-key (BYOK)** LLM integration with secrets encrypted at rest.
+A small collection of **production-style SaaS starters**, each on a different
+stack, plus a zero-dependency CLI to scaffold one into a new project. Every
+template demonstrates the patterns most SaaS apps actually need — authentication,
+multi-tenant data with per-request authorization, and a **bring-your-own-key
+(BYOK)** LLM integration with secrets encrypted at rest.
 
-Fork it, point it at a fresh Supabase project, and you have a working foundation in minutes.
+> The repo is named `nextjs-supabase-saas-starter` for historical reasons. Now
+> that it hosts more than one stack, a name like `saas-starters` would fit
+> better — a rename is suggested but intentionally **not** done here to avoid
+> breaking existing links and the Vercel deploy URLs.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danielt69/nextjs-supabase-saas-starter&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,BYOK_ENCRYPTION_KEY&envDescription=Supabase%20keys%20and%20a%20BYOK%20encryption%20secret&envLink=https://github.com/danielt69/nextjs-supabase-saas-starter/blob/main/.env.example)
-
-## Features
-
-- **Supabase Auth (SSR)** — email/password **and** Google OAuth via `@supabase/ssr`. Middleware refreshes the session on every request; Server Components read it; protected routes are gated.
-- **Multi-tenant + RLS** — `orgs` / `org_members` / `projects` schema. A new workspace + owner membership is created automatically on signup. Every row is scoped by org membership through Row Level Security, so the public anon key can only ever touch authorized data.
-- **BYOK LLM** — a settings page where a user stores their own provider API key, **encrypted at rest with AES-256-GCM** before it hits Postgres. A demo feature decrypts it server-side only and calls any OpenAI-compatible model.
-- **Type-safe** — TypeScript end-to-end with hand-written DB types (swap in `supabase gen types` output).
-- **Build-safe env** — clients are lazily initialized with placeholder-safe fallbacks, so `npm run build` and CI pass **without any real secrets present**.
-- **CI** — GitHub Actions runs typecheck + build on every push and PR.
-
-## Architecture
-
-```
-                         ┌─────────────────────────────┐
-  Browser  ──request──▶  │  proxy.ts (Next 16 proxy)   │  refresh session,
-                         │  (updateSession)            │  gate /dashboard,/settings
-                         └──────────────┬──────────────┘
-                                        │ cookies
-                  ┌─────────────────────▼─────────────────────┐
-                  │            Next.js App Router              │
-                  │                                            │
-                  │  Server Components / Actions / Routes      │
-                  │   └─ lib/supabase/server.ts  (anon, RLS)   │
-                  │   └─ lib/supabase/server.ts  (service key) │
-                  │  Client Components                         │
-                  │   └─ lib/supabase/client.ts  (browser)     │
-                  └─────────────────────┬─────────────────────┘
-                                        │ HTTPS (RLS enforced)
-                  ┌─────────────────────▼─────────────────────┐
-                  │                 Supabase                   │
-                  │  Postgres + RLS:                           │
-                  │   orgs · org_members · projects            │
-                  │   provider_keys (AES-256-GCM ciphertext)   │
-                  │  Auth (email/password + Google OAuth)      │
-                  └────────────────────────────────────────────┘
-```
-
-BYOK key flow: plaintext key → `lib/crypto.ts` AES-256-GCM encrypt (server) → stored as ciphertext in `provider_keys` → decrypted **only** server-side when calling `lib/llm.ts`. The plaintext never returns to the browser.
-
-## Quick start
+## Quick start (scaffold a new app)
 
 ```bash
-git clone https://github.com/danielt69/nextjs-supabase-saas-starter.git
-cd nextjs-supabase-saas-starter
-cp .env.example .env.local   # fill in your values (see below)
-npm install
-npm run dev                  # http://localhost:3000
+npm create saas-stack@latest
+# or
+npx create-saas-stack my-app --stack convex-clerk --install
 ```
 
-The app builds and runs even before you add real Supabase values — protected pages show a friendly "configure your env" notice instead of crashing.
+The CLI copies a template into a new directory, rewrites the package name, and
+prints next steps. It's a template copier, not a codegen engine. See
+[`packages/create`](./packages/create).
 
-## Point it at a fresh Supabase project
+Prefer to clone directly? Each template lives under `templates/` and is fully
+self-contained — `cd` into one and run `npm install`.
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. **Project Settings → API**: copy the Project URL, the `anon` key, and the `service_role` key into `.env.local`.
-3. Apply the schema. Either run the SQL in `supabase/migrations/0001_init.sql` in the Supabase **SQL Editor**, or use the CLI:
-   ```bash
-   supabase link --project-ref <your-ref>
-   supabase db push
-   ```
-4. **Authentication → Providers → Google**: enable it and paste your Google OAuth client id/secret. Add `http://localhost:3000/auth/callback` (and your production URL) to the provider's allowed redirect URLs.
-5. Generate a BYOK encryption secret and set `BYOK_ENCRYPTION_KEY`:
-   ```bash
-   openssl rand -base64 32
-   ```
-6. `npm run dev`, create an account, and you'll land on a workspace with a `projects` list and a BYOK settings page.
+## Templates
 
-## Environment variables
+| Stack | Auth | Data | LLM | Directory |
+| --- | --- | --- | --- | --- |
+| **Supabase + Next.js** | Supabase Auth (SSR): email/password + Google OAuth | Postgres + Row Level Security | BYOK, AES-256-GCM | [`templates/supabase-next`](./templates/supabase-next) |
+| **Convex + Clerk** | Clerk: email + social, hosted UI | Convex (reactive), tenancy by identity | BYOK, AES-256-GCM | [`templates/convex-clerk`](./templates/convex-clerk) |
 
-Every variable is documented in [`.env.example`](./.env.example). Copy it to `.env.local`.
+Both share the same product surface — a landing page, gated dashboard with a
+multi-tenant `projects` list, and a settings page for managing an encrypted
+provider key plus an LLM demo — so you can compare the two approaches directly.
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL (public). |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Supabase anon/public key (public, RLS-protected). |
-| `SUPABASE_SERVICE_ROLE_KEY` | server | Service-role key. **Server-only**, bypasses RLS. Never expose to the client. |
-| `BYOK_ENCRYPTION_KEY` | yes | Secret used to derive the AES-256-GCM key for encrypting BYOK provider keys. Generate with `openssl rand -base64 32`. |
-| `GOOGLE_OAUTH_CLIENT_ID` | optional | Reference value; configured in the Supabase dashboard. |
-| `GOOGLE_OAUTH_CLIENT_SECRET` | optional | Reference value; configured in the Supabase dashboard. |
-| `NEXT_PUBLIC_SITE_URL` | optional | Public base URL used for OAuth redirects. |
+### Deploy to Vercel
 
-> **Secret hygiene:** only `.env.example` (placeholders) is committed. `.env*` files are git-ignored. Never commit real keys.
+Set the project's **Root Directory** to the template path when importing.
 
-## Project structure
+| Template | One-click deploy |
+| --- | --- |
+| Supabase + Next.js | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danielt69/nextjs-supabase-saas-starter/tree/main/templates/supabase-next&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,BYOK_ENCRYPTION_KEY&envDescription=Supabase%20keys%20and%20a%20BYOK%20encryption%20secret&envLink=https://github.com/danielt69/nextjs-supabase-saas-starter/blob/main/templates/supabase-next/.env.example) |
+| Convex + Clerk | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danielt69/nextjs-supabase-saas-starter/tree/main/templates/convex-clerk&env=NEXT_PUBLIC_CONVEX_URL,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,CLERK_SECRET_KEY,CLERK_JWT_ISSUER_DOMAIN,BYOK_ENCRYPTION_KEY&envDescription=Convex%20URL%2C%20Clerk%20keys%2C%20and%20a%20BYOK%20encryption%20secret&envLink=https://github.com/danielt69/nextjs-supabase-saas-starter/blob/main/templates/convex-clerk/.env.example) |
+
+## Repo layout
 
 ```
-src/
-  app/
-    page.tsx                  Landing page
-    login/ · signup/          Auth pages + server actions
-    auth/callback/route.ts    OAuth/PKCE code exchange
-    auth/signout/route.ts     Sign out
-    (dashboard)/
-      layout.tsx              Auth-gated shell
-      dashboard/              Projects (multi-tenant, RLS) + actions
-      settings/               BYOK key management + LLM demo + actions
-  components/                 GoogleButton, LlmDemo
-  lib/
-    env.ts                    Build-safe env access
-    crypto.ts                 AES-256-GCM encrypt/decrypt for BYOK
-    llm.ts                    Generic OpenAI-compatible LLM call
-    database.types.ts         Typed schema
-    supabase/                 browser / server / session-proxy clients
-  proxy.ts                    Next.js 16 proxy: session refresh + route gating
-supabase/migrations/          SQL schema + RLS policies
-.github/workflows/ci.yml      Typecheck + build
+templates/
+  supabase-next/     Next.js App Router + Supabase (Postgres + RLS auth)
+  convex-clerk/      Next.js App Router + Convex (reactive DB) + Clerk auth
+packages/
+  create/            create-saas-stack — zero-dep scaffolding CLI
+.github/workflows/
+  ci.yml             Matrix: typecheck + build EACH template, no secrets
+LICENSE              MIT
 ```
 
-## Scripts
+The templates are deliberately **not** npm workspaces. Each is fully
+self-contained with its own `package-lock.json`, so it builds in isolation after
+a plain `git clone` or after the CLI copies it out — which is exactly what the
+"independently-runnable" guarantee requires. The root `package.json` is a private
+orchestrator that just forwards to each template (`npm run build`,
+`npm run typecheck`, `npm run create`).
+
+## Design principles (shared by every template)
+
+- **Independently runnable.** `npm install && npm run build` and
+  `npm run typecheck` pass with **no real secrets present**. Clients are lazily
+  initialized with placeholder-safe fallbacks; protected pages show a friendly
+  "configure your env" notice instead of crashing.
+- **Secrets stay out of git.** Only `.env.example` (placeholders) is committed;
+  all `.env*` files are git-ignored.
+- **BYOK, encrypted at rest.** A user's provider key is encrypted server-side
+  with AES-256-GCM before storage and decrypted **only** server-side when calling
+  the model. The plaintext never returns to the browser.
+- **Type-safe end to end**, with CI that matrix-builds and type-checks every
+  template on each push and PR.
+
+## Root scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Production build (passes without real secrets) |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | Next.js lint |
+| `npm run create` | Run the scaffolding CLI |
+| `npm run build` | Build both templates |
+| `npm run typecheck` | Type-check both templates |
+| `npm run build:<template>` / `typecheck:<template>` | Single template |
+
+> The per-template scripts forward via `npm --prefix`, so install that
+> template's dependencies first (`npm --prefix templates/<x> install`).
 
 ## License
 
