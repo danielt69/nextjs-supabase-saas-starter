@@ -34,3 +34,8 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# graphify: commit the queryable graph (graph.json, GRAPH_REPORT.md, manifest.json);
+# ignore the bulky regenerable HTML viz and local cache
+graphify-out/graph.html
+graphify-out/cache/
