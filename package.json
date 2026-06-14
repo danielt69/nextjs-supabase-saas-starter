@@ -15,7 +15,10 @@
     "typecheck:t3": "npm --prefix templates/t3 run typecheck",
     "typecheck:firebase-react": "npm --prefix templates/firebase-react run typecheck",
     "build": "npm run build:supabase-next && npm run build:react-convex-clerk && npm run build:t3 && npm run build:firebase-react",
-    "typecheck": "npm run typecheck:supabase-next && npm run typecheck:react-convex-clerk && npm run typecheck:t3 && npm run typecheck:firebase-react"
+    "typecheck": "npm run typecheck:supabase-next && npm run typecheck:react-convex-clerk && npm run typecheck:t3 && npm run typecheck:firebase-react",
+    "viberaven:gate": "npx -y viberaven --agent-mode",
+    "viberaven:verify": "npx -y viberaven --verify",
+    "viberaven:strict": "npx -y viberaven --strict"
   },
   "keywords": [
     "saas",
