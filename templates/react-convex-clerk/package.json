@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.35.0",
-    "convex": "^1.31.0",
+    "convex": "^1.42.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5"
